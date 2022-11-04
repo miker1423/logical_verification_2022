@@ -21,8 +21,10 @@ be negative are represented by 0. For example:
     `sub 7 2 = 5`
     `sub 2 7 = 0` -/
 
-def sub : ℕ → ℕ → ℕ :=
-sorry
+def sub : ℕ → ℕ → ℕ
+| nat.zero n := 0
+| m nat.zero := m
+| (nat.succ m) (nat.succ n) := (sub m n)
 
 /-! 1.2. Check that your function works as expected. -/
 
@@ -67,8 +69,13 @@ def some_env : string → ℤ
 | _   := 201
 
 #eval eval some_env (aexp.var "x")   -- expected: 3
--- invoke `#eval` here
-
+#eval eval some_env (aexp.var "y")   -- expected: 17
+#eval eval some_env (aexp.var "any_var") -- expected: 201
+#eval eval some_env (aexp.add (aexp.var "x") (aexp.var "y")) -- expected: 20
+#eval eval some_env (aexp.mul (aexp.var "y") (aexp.var "x")) -- expected: 51
+#eval eval some_env (aexp.div (aexp.var "y") (aexp.var "y")) -- expected: 1
+#eval eval some_env (aexp.sub (aexp.var "y") (aexp.var "x")) -- expected: 14
+#eval eval some_env (aexp.num 7) -- expected: 7
 /-! 2.2. The following function simplifies arithmetic expressions involving
 addition. It simplifies `0 + e` and `e + 0` to `e`. Complete the definition so
 that it also simplifies expressions involving the other three binary
@@ -77,6 +84,12 @@ operators. -/
 def simplify : aexp → aexp
 | (aexp.add (aexp.num 0) e₂) := simplify e₂
 | (aexp.add e₁ (aexp.num 0)) := simplify e₁
+| (aexp.mul (aexp.num 0) e₂) := (aexp.num 0)
+| (aexp.mul e₁ (aexp.num 0)) := (aexp.num 0)
+| (aexp.sub (aexp.num 0) e₂) := simplify e₂
+| (aexp.sub e₁ (aexp.num 0)) := simplify e₁
+| (aexp.div (aexp.num 0) e₂) := (aexp.num 1)
+| (aexp.div e₁ (aexp.num 0)) := (aexp.num 0)
 -- insert the missing cases here
 -- catch-all cases below
 | (aexp.num i)               := aexp.num i

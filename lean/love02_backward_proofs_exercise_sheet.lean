@@ -21,25 +21,38 @@ Section 2.3 in the Hitchhiker's Guide. -/
 
 lemma I (a : Prop) :
   a → a :=
-sorry
+begin
+intro ha,
+apply ha,
+end
 
 lemma K (a b : Prop) :
   a → b → b :=
-sorry
+begin
+intros ha hb,
+apply hb,
+end
 
 lemma C (a b c : Prop) :
   (a → b → c) → b → a → c :=
+begin
 sorry
+end
 
 lemma proj_1st (a : Prop) :
   a → a → a :=
-sorry
+begin 
+intros ha ha2,
+apply ha,
+end
 
 /-! Please give a different answer than for `proj_1st`: -/
 
 lemma proj_2nd (a : Prop) :
   a → a → a :=
+begin
 sorry
+end
 
 lemma some_nonsense (a b c : Prop) :
   (a → b → c) → a → (a → c) → b → c :=
