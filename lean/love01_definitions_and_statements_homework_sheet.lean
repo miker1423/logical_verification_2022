@@ -1,6 +1,7 @@
 import .love01_definitions_and_statements_demo
 
 
+/- Miguel Pérez García mpa299 -/
 /-! # LoVe Homework 1: Definitions and Statements
 
 Homework must be done individually.
@@ -19,8 +20,11 @@ namespace LoVe
 1.1 (1 point). Define the function `fib` that computes the Fibonacci
 numbers. -/
 
-def fib : ℕ → ℕ :=
-sorry
+def fib : ℕ → ℕ
+| 0 := 0
+| 1 := 1
+| (nat.succ(nat.succ m)) := fib (nat.succ m) + fib m
+
 
 /-! 1.2 (0 points). Check that your function works as expected. -/
 
@@ -71,11 +75,15 @@ you wonder how to enter the symbol `₂`, have a look at the table at the end of
 the preface in the Hitchhiker's Guide.
 
 Hint: Take a look at `reverse_reverse` from the demonstration file. -/
+lemma append_comm {α: Type} (a b c: list α) :
+    append₂ (append₂ a b) c = append₂ a (append₂ b c) := 
+sorry
+
+lemma reverse_comm {α: Type} (a b c: list α) :
+    reverse (append₂ a b) = append₂ (reverse b) (reverse a) :=
+sorry
 
 #check sorry_lemmas.reverse_reverse
-
--- enter your lemma statements here
-
 
 /-! ## Question 3 (5 points): λ-Terms
 
@@ -91,16 +99,16 @@ while constructing a term. By hovering over `_`, you will see the current
 logical context. -/
 
 def B : (α → β) → (γ → α) → γ → β :=
-sorry
+λab, λga, λg, ab (ga g)
 
 def S : (α → β → γ) → (α → β) → α → γ :=
-sorry
+λag, λab, λa, ag a (ab a)
 
 def more_nonsense : (γ → (α → β) → α) → γ → β → α :=
-sorry
+λga, λg, λb, ga g (λa, b) 
 
 def even_more_nonsense : (α → α → β) → (β → γ) → α → β → γ :=
-sorry
+λ_, λbg, λ_, λb, bg b
 
 /-! 3.2 (1 point). Complete the following definition.
 
@@ -110,7 +118,7 @@ follow the procedure described in the Hitchhiker's Guide.
 Note: Peirce is pronounced like the English word "purse". -/
 
 def weak_peirce : ((((α → β) → α) → α) → β) → β :=
-sorry
+λf, f (λab, ab (λaa, f (λ_, aa)))
 
 /-! 3.3 (2 points). Show the typing derivation for your definition of `S` above,
 using ASCII or Unicode art. You might find the characters `–` (to draw
@@ -118,6 +126,21 @@ horizontal bars) and `⊢` useful.
 
 Feel free to introduce abbreviations to avoid repeating large contexts `C`. -/
 
--- write your solution here
+/-
+–––––––––––––––––––––---App  -----------------Var
+C → f : ((α → β) → α) → β    C → d : (α → β) → α
+–––––––––––––––––––––App     -----------Var
+C ⊢ f ab  : a → β            C ⊢ c :  α → α
+–––––––––––––––––––––App     -----------Var
+C ⊢ f (ab f) : α → β         C ⊢ aa : α
+–––––––––––––––––––––App
+C ⊢ f (ab (f (aa))) : β
+––––––––––––––––––––––––––––––––––––App
+C, f, ab ⊢ (λ(aa : α)) : α → β
+–––––––––––––––––––––––––––––––––––––––––––––––--------------------------------Lam
+C, f: ((((α → β) → α) → α) → β) ⊢ (λ(ab: ((α → β) → α) (ac: α -> β), ab ac)) : ((α → β) → α) → α
+–––––––––––––––––––––––––––––––––––––––––––––––---------------------------------------------Lam
+⊢ (λ(f: (((α → β) → α) → α) → β) (ab: ((α → β) → α) → α), f ab) : ((((α → β) → α) → α) → β) → β
+-/
 
 end LoVe

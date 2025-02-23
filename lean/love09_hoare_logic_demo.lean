@@ -185,6 +185,7 @@ namespace partial_hoare
 lemma skip_intro {P} :
   {* P *} stmt.skip {* P *} :=
 begin
+  rw [partial_hoare],
   intros s t hs hst,
   cases' hst,
   assumption
@@ -322,7 +323,8 @@ lemma SWAP_correct (a₀ b₀ : ℕ) :
   {* λs, s "a" = a₀ ∧ s "b" = b₀ *}
   SWAP
   {* λs, s "a" = b₀ ∧ s "b" = a₀ *} :=
-begin
+begin 
+  rw [SWAP],
   apply partial_hoare.seq_intro',
   apply partial_hoare.seq_intro',
   apply partial_hoare.assign_intro,

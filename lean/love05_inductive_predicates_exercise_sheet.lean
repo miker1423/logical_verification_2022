@@ -27,11 +27,32 @@ Hint: `cases'` is useful to reason about hypotheses of the form `even …`. -/
 
 @[simp] lemma odd_1 :
   odd 1 :=
-sorry
+begin
+  rw odd,
+  intro h,
+  induction' h,
+end
 
 /-! 1.2. Prove that 3 and 5 are odd. -/
 
 -- enter your answer here
+lemma odd_3 :
+  odd 3 :=
+begin 
+  intro h,
+  cases' h,
+  apply odd_1,
+  assumption,
+end
+
+lemma odd_5 : 
+  odd 5 :=
+begin
+  intro h,
+  cases' h,
+  apply odd_3,
+  assumption,
+end
 
 /-! 1.3. Complete the following proof by structural induction. -/
 
@@ -39,7 +60,16 @@ lemma even_two_times :
   ∀m : ℕ, even (2 * m)
 | 0       := even.zero
 | (m + 1) :=
-  sorry
+begin 
+  induction' m,
+  { simp,
+    apply even.add_two,
+    apply even.zero, },
+  { 
+    apply even.add_two,
+    apply ih,
+  }
+end
 
 /-! 1.4. Complete the following proof by rule induction.
 
@@ -55,7 +85,11 @@ begin
     apply exists.intro 0,
     refl },
   case add_two : k hek ih {
-    sorry }
+    cases' ih,
+    apply exists.intro (w + 1),
+    rw h,
+    linarith,
+  }
 end
 
 /-! 1.5. Using `even_two_times` and `even_imp_exists_two_times`, prove the
@@ -63,7 +97,18 @@ following equivalence. -/
 
 lemma even_iff_exists_two_times (n : ℕ) :
   even n ↔ ∃m, n = 2 * m :=
-sorry
+begin
+  apply iff.intro,
+  {
+    apply even_imp_exists_two_times,
+  },
+  {
+    intro he,
+    cases' he,
+    rw [h],
+    apply even_two_times,
+  }
+end
 
 /-! 1.6 (**optional**). Give a structurally recursive definition of `even` and
 test it with `#eval`.

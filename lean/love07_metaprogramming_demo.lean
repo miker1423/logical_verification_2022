@@ -231,6 +231,7 @@ by do
   trace_goals,
   intro_and_even
 
+
 lemma triv_imp (a : Prop) (h : a) :
   a :=
 by do

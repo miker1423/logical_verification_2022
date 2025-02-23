@@ -27,15 +27,25 @@ namespace backward_proofs
 
 lemma peirce_of_dn :
   double_negation → peirce :=
-sorry
+assume dn : double_negation,
+have em: excluded_middle := 
+  sorry_lemmas.em_of_dn dn,
+peirce_of_em em
 
 lemma em_of_peirce :
   peirce → excluded_middle :=
-sorry
+assume p : peirce,
+have dn : double_negation :=
+  dn_of_peirce p,
+sorry_lemmas.em_of_dn dn
+
 
 lemma dn_of_em :
   excluded_middle → double_negation :=
-sorry
+assume em : excluded_middle,
+have pe : peirce :=
+  peirce_of_em em,
+dn_of_peirce pe
 
 end backward_proofs
 
@@ -45,7 +55,29 @@ rules for `∃`, `∧`, and `↔`. -/
 
 lemma exists_and_commute {α : Type} (p q : α → Prop) :
   (∃x, p x ∧ q x) ↔ (∃x, q x ∧ p x) :=
-sorry
+iff.intro (
+  assume hepxaqx : ∃x, p x ∧ q x,
+  show ∃x, q x ∧ p x, from
+    exists.elim hepxaqx
+    (
+      fix x : α,
+      assume pxaqx : p x ∧ q x,
+      have hpx : p x := and.elim_left pxaqx,
+      have hqx : q x := and.elim_right pxaqx,
+      exists.intro x (and.intro hqx hpx)
+    )
+) (
+  assume hqxapx : ∃x, q x ∧ p x,
+  show ∃x, p x ∧ q x, from
+    exists.elim hqxapx
+    (
+      fix x : α,
+      assume qxapx : q x ∧ p x,
+      have hqx : q x := and.elim_left qxapx,
+      have hpx : p x := and.elim_right qxapx,
+      exists.intro x (and.intro hpx hqx)
+    )
+)
 
 
 /-! ## Question 2 (3 points): Fokkink Logic Puzzles
@@ -73,15 +105,31 @@ term.
 
 Hint: There is an easy way. -/
 
+/- Reuse of lamba from HW 1 as proof term. -/
 lemma weak_peirce₂ :
   ∀a b : Prop, ((((a → b) → a) → a) → b) → b :=
-sorry
+fix a b: Prop,
+λf, f (λab, ab (λaa, f (λ_, aa)))
 
 /-! 2.2 (2 points). Prove the same Fokkink lemma again, this time by providing a
 structured proof, with `assume`s and `show`s. -/
 
 lemma weak_peirce₃ :
   ∀a b : Prop, ((((a → b) → a) → a) → b) → b :=
-sorry
+fix a b : Prop,
+assume habaab : (((a → b) → a) → a) → b,
+show b, from
+  habaab (  
+    assume habaa : (a → b) → a,
+    show a, from 
+      habaa (
+        assume ha,
+        show b, from 
+          habaab (
+            assume haba : (a → b) → a,
+            ha
+          )
+      )
+  )
 
 end LoVe

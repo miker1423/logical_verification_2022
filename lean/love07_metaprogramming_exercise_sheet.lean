@@ -28,7 +28,6 @@ types that belong to the `has_repr` type class. -/
 
 meta def expr.repr : expr → string
 | (expr.var n)                := "(var " ++ repr n ++ ")"
--- enter the missing cases here
 
 /-! We register `expr.repr` in the `has_repr` type class, so that we can use
 `repr` without qualification in the future, and so that it is available to
@@ -69,7 +68,7 @@ quoting). -/
 #check tactic.applyc
 
 meta def intro_ands : tactic unit :=
-sorry
+tactic.repeat (tactic.applyc `and.intro)
 
 lemma abcd_bd (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
   b ∧ d :=
@@ -137,7 +136,11 @@ form. Make sure to handle this failure gracefully, for example using
 `tactic.try` or `<|> pure ()`. -/
 
 meta def destruct_ands : tactic unit :=
-sorry
+tactic.repeat (do 
+  hs ← tactic.local_context,
+  h ← list.mfirst (λh, do `(_ ∧ _) ← tactic.infer_type h, pure h) hs,
+  tactic.cases h,
+  pure ())
 
 lemma abcd_bd₂ (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
   b ∧ d :=
@@ -158,7 +161,11 @@ end
 implement the desired `destro_and` tactic. -/
 
 meta def destro_and : tactic unit :=
-sorry
+do 
+  destruct_ands,
+  intro_ands,
+  tactic.all_goals (tactic.try tactic.assumption),
+  pure ()
 
 lemma abcd_bd₃ (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
   b ∧ d :=

@@ -53,14 +53,21 @@ around for a Lean bug. Below we will take `σ := state`.
 specification of GCL above. -/
 
 inductive big_step : (stmt state × state) → state → Prop
--- enter the missing `assign` rule here
+-- enter missing `assign` rule here
+| assign {x a s} :
+  big_step (stmt.assign x a, s) (s{x ↦ a s})
 | assert {b : state → Prop} {s} (hcond : b s) :
   big_step (stmt.assert b, s) s
 -- enter the missing `seq` rule here
+| seq {S T s t u} (hs : big_step (S, s) t) (hT : big_step (T, t) u) :
+  big_step (S ;; T, s) u
 | choice {Ss s t} (i) (hless : i < list.length Ss)
     (hbody : big_step (list.nth_le Ss i hless, s) t) :
   big_step (stmt.choice Ss, s) t
 -- enter the missing `loop` rules here
+| loop {S s u} (t) (hbody : big_step (S, s) t)
+  (hrest: big_step (stmt.loop S, t) u):
+  big_step (stmt.loop S, s) u
 
 infix ` ⟹ ` : 110 := big_step
 
@@ -69,7 +76,15 @@ WHILE language. -/
 
 @[simp] lemma big_step_assign_iff {x a s t} :
   (stmt.assign x a, s) ⟹ t ↔ t = s{x ↦ a s} :=
-sorry
+begin
+  apply iff.intro,
+  { intro h, 
+    cases' h,
+    refl },
+  { intro h, 
+    rw h,
+    exact big_step.assign,}
+end 
 
 @[simp] lemma big_step_assert {b s t} :
   (stmt.assert b, s) ⟹ t ↔ t = s ∧ b s :=

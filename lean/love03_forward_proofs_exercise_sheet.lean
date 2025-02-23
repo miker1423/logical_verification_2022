@@ -16,41 +16,81 @@ namespace LoVe
 
 lemma I (a : Prop) :
   a → a :=
-sorry
+assume ha : a,
+show a, from ha
 
 lemma K (a b : Prop) :
   a → b → b :=
-sorry
+assume ha : a,
+assume hb : b,
+show b, from hb
 
 lemma C (a b c : Prop) :
   (a → b → c) → b → a → c :=
-sorry
+assume hac : a → b → c,
+assume hb : b,
+assume ha : a,
+show c, from
+  hac ha hb
 
 lemma proj_1st (a : Prop) :
   a → a → a :=
-sorry
+assume haa : a,
+assume ha : a,
+show a, from 
+  ha
 
 /-! Please give a different answer than for `proj_1st`. -/
 
 lemma proj_2nd (a : Prop) :
   a → a → a :=
-sorry
+fix haa : a,
+fix ha : a,
+show a, from 
+  ha
 
 lemma some_nonsense (a b c : Prop) :
   (a → b → c) → a → (a → c) → b → c :=
-sorry
+assume habc : a → b → c,
+assume ha : a, 
+assume hac : a → c,
+assume hb : b,
+show c, from 
+  hac ha
 
 /-! 1.2. Supply a structured proof of the contraposition rule. -/
 
 lemma contrapositive (a b : Prop) :
   (a → b) → ¬ b → ¬ a :=
-sorry
+assume hab : a → b,
+assume hnb : ¬b,
+assume ha : a,
+show false, from
+  hnb (hab ha)
 
 /-! 1.3. Supply a structured proof of the distributivity of `∀` over `∧`. -/
 
 lemma forall_and {α : Type} (p q : α → Prop) :
   (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
-sorry
+iff.intro (
+  assume hall : ∀x, p x ∧ q x,
+  have hpx : ∀x, p x :=
+    fix x,
+    and.elim_left (hall x),
+  have hqx : ∀x, q x :=
+    fix x,
+    and.elim_right (hall x),
+  show (∀x, p x) ∧ (∀x, q x), from 
+    and.intro hpx hqx) 
+  (
+    assume handall: (∀x, p x) ∧ (∀x, q x),
+    have hpx: ∀x, p x :=
+      and.elim_left handall,
+    have hqx: ∀x, q x :=
+      and.elim_right handall,
+    assume x : α,
+    show p x ∧ q x, from
+      and.intro (hpx x) (hqx x))
 
 /-! 1.4 (**optional**). Reuse, if possible, the lemma `forall_and` from question
 1.3 to prove the following instance of the lemma. -/
@@ -83,6 +123,7 @@ Hint: You might need the tactics `simp` and `cc` and the lemmas `mul_add`,
 lemma binomial_square (a b : ℕ) :
   (a + b) * (a + b) = a * a + 2 * a * b + b * b :=
 sorry
+
 
 /-! 2.2 (**optional**). Prove the same argument again, this time as a structured
 proof, with `have` steps corresponding to the `calc` equations. Try to reuse as
@@ -120,7 +161,7 @@ axiom exists.one_point_wrong {α : Type} {t : α} {p : α → Prop} :
   (∃x : α, x = t → p x) ↔ p t
 
 lemma proof_of_false₂ :
-  false :=
+  false := 
 sorry
 
 end LoVe

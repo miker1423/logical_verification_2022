@@ -32,8 +32,38 @@ different symbols. -/
 #check tactic.intro
 #check tactic.intro1
 
+meta def trace_goals : tactic unit :=
+do
+  tactic.trace "local context:",
+  ctx ← tactic.local_context,
+  tactic.trace ctx,
+  tactic.trace "target:",
+  P ← tactic.target,
+  tactic.trace P,
+  tactic.trace "all missing proofs:",
+  Hs ← tactic.get_goals,
+  tactic.trace Hs,
+  τs ← list.mmap tactic.infer_type Hs,
+  tactic.trace τs
+
 meta def mindless_safe : tactic unit :=
-sorry
+do 
+  -- trace_goals,
+  tactic.repeat (tactic.applyc `tactic.intro1 <|> tactic.applyc `tactic.intro),
+  trace_goals,
+  pure()
+
+
+meta def mindless_safe₁ : tactic unit :=
+do 
+tactic.repeat (
+  tactic.applyc ``tactic.intro  <|> 
+  tactic.applyc ``tactic.intro1 <|> 
+  tactic.applyc ``true.intro    <|>
+  tactic.applyc ``and.intro     <|> 
+  tactic.applyc ``iff.intro     <|> 
+  tactic.applyc ``tactic.assumption),
+pure ()
 
 lemma abcd (a b c d : Prop) (hc : c) :
   a → ¬ b ∧ (c ↔ d) :=
@@ -54,6 +84,8 @@ begin
   ⊢ d -/
   repeat { sorry }
 end
+
+
 
 /-! 1.2 (3 points). Develop a `mindless_unsafe` tactic that works on the current
 goal. For each hypothesis in turn:

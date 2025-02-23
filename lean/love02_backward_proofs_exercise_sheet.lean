@@ -22,28 +22,31 @@ Section 2.3 in the Hitchhiker's Guide. -/
 lemma I (a : Prop) :
   a → a :=
 begin
-intro ha,
-apply ha,
+  intro ha,
+  apply ha,
 end
 
 lemma K (a b : Prop) :
   a → b → b :=
 begin
-intros ha hb,
-apply hb,
+  intros ha hb,
+  apply hb,
 end
 
 lemma C (a b c : Prop) :
   (a → b → c) → b → a → c :=
 begin
-sorry
+  intros ac β α,
+  apply ac,
+  apply α,
+  apply β,
 end
 
 lemma proj_1st (a : Prop) :
   a → a → a :=
 begin 
-intros ha ha2,
-apply ha,
+  intros ha ha2,
+  apply ha,
 end
 
 /-! Please give a different answer than for `proj_1st`: -/
@@ -51,18 +54,30 @@ end
 lemma proj_2nd (a : Prop) :
   a → a → a :=
 begin
-sorry
+  intros α _,
+  exact α,
 end
 
 lemma some_nonsense (a b c : Prop) :
   (a → b → c) → a → (a → c) → b → c :=
-sorry
+begin
+  intros abc α ac β,
+  apply ac,
+  apply α,
+end
 
 /-! 1.2. Prove the contraposition rule using basic tactics. -/
 
 lemma contrapositive (a b : Prop) :
   (a → b) → ¬ b → ¬ a :=
-sorry
+begin
+  intros ab nb,
+  apply not.intro,
+  intro a,
+  apply nb,
+  apply ab,
+  apply a,
+end
 
 /-! 1.3. Prove the distributivity of `∀` over `∧` using basic tactics.
 
@@ -72,7 +87,9 @@ necessary. -/
 
 lemma forall_and {α : Type} (p q : α → Prop) :
   (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
-sorry
+begin
+  sorry
+end
 
 
 /-! ## Question 2: Natural Numbers
@@ -137,13 +154,35 @@ and similarly for `peirce`. -/
 
 lemma peirce_of_em :
   excluded_middle → peirce :=
-sorry
+begin
+  rw excluded_middle,
+  rw peirce,
+  intros hem a b haba,
+  apply or.elim (hem a),
+   { intro,
+    assumption },
+  { intro hna,
+    apply haba,
+    intro ha,
+    apply false.elim,
+    apply hna,
+    assumption }
+end
 
 /-! 3.2 (**optional**). Prove the following implication using tactics. -/
 
 lemma dn_of_peirce :
   peirce → double_negation :=
-sorry
+begin
+  rw peirce,
+  rw double_negation,
+  intros hpierce a hnna,
+  apply hpierce  a false,
+  intro hna,
+  apply false.elim,
+  apply hnna,
+  exact hna,
+end
 
 /-! We leave the remaining implication for the homework: -/
 

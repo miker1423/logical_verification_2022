@@ -85,8 +85,10 @@ first `n` elements at the front of a list.
 To avoid unpleasant surprises in the proofs, we recommend that you follow the
 same recursion pattern as for `drop` above. -/
 
-def take {α : Type} : ℕ → list α → list α :=
-sorry
+def take {α : Type} : ℕ → list α → list α
+| 0 _           := []
+| _ []          := []
+| m ( x :: xs ) := [x] ++ take (m-1) xs
 
 #eval take 0 [3, 7, 11]   -- expected: []
 #eval take 1 [3, 7, 11]   -- expected: [3]
@@ -139,6 +141,10 @@ by the following context-free grammar:
            | 'app' term term     -- application (e.g., `t u`) -/
 
 -- enter your definition here
+inductive term : Type
+| var : string → term
+| lam : string → term → term
+| app : term → term → term
 
 /-! 3.2. Register a textual representation of the type `term` as an instance of
 the `has_repr` type class. Make sure to supply enough parentheses to guarantee

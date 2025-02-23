@@ -36,16 +36,20 @@ Hint: For this, you will only need pattern matching (no `do` syntax). -/
 #check list.nth
 
 def list.nth_error {α : Type} (as : list α) (i : ℕ) : error string α :=
-sorry
+match list.nth as i with
+| option.some a := error.good a
+| option.none   := error.bad "index out of range"
+end
 
 /-! 1.2 (1 point). Complete the definitions of the `pure` and `bind` operations
 on the error monad: -/
 
 def error.pure {ε α : Type} : α → error ε α :=
-sorry
+error.good
 
-def error.bind {ε α β : Type} : error ε α → (α → error ε β) → error ε β :=
-sorry
+def error.bind {ε α β : Type} : error ε α → (α → error ε β) → error ε β 
+| (error.bad e) f := error.bad e
+| (error.good a) f := f a
 
 /-! The following type class instance makes it possible to use `>>=` and `do`
 notations in conjunction with error monads: -/
@@ -58,16 +62,29 @@ notations in conjunction with error monads: -/
 
 lemma error.pure_bind {ε α β : Type} (a : α) (f : α → error ε β) :
   (pure a >>= f) = f a :=
-sorry
+begin
+  simp [pure, (>>=)],
+  refl
+end 
 
 lemma error.bind_pure {ε α : Type} (ma : error ε α) :
   (ma >>= pure) = ma :=
-sorry
+begin
+  simp [pure, (>>=)],
+  cases' ma,
+  { refl },
+  { refl }
+end
 
 lemma error.bind_assoc {ε α β γ : Type} (f : α → error ε β) (g : β → error ε γ)
     (ma : error ε α) :
   ((ma >>= f) >>= g) = (ma >>= (λa, f a >>= g)) :=
-sorry
+begin
+  simp [(>>=)],
+  cases' ma,
+  { refl },
+  { refl }
+end
 
 /-! 1.4 (1 point). Define the following two operations on the error monad.
 
@@ -82,11 +99,13 @@ to a good state, nothing happens—the monad remains in the good state. As a
 convenient alternative to `error.catch ma g`, Lean lets us write
 `ma.catch g`. -/
 
-def error.throw {ε α : Type} : ε → error ε α :=
-sorry
+def error.throw {ε α : Type} : ε → error ε α
+| e := error.bad e
 
-def error.catch {ε α : Type} : error ε α → (ε → error ε α) → error ε α :=
-sorry
+
+def error.catch {ε α : Type} : error ε α → (ε → error ε α) → error ε α
+| (error.bad e) f := f e
+| e f             := e
 
 /-! 1.5 (1 point). Using `list.nth_error`, the monad operations on `error`, and
 the special `error.catch` operation, write a `do` program that swaps the values
@@ -94,8 +113,13 @@ at indexes `i` and `j` in the input list `as`. If either index is out of range,
 return `as` unchanged. -/
 
 def list.swap {α : Type} (as : list α) (i j : ℕ) : error string (list α) :=
-sorry
+do 
+  asi' ← list.nth_error as i,
+  asj' ← list.nth_error as j,
+  updatei' ← error.pure (list.update_nth as i asj'),
+  error.pure (list.update_nth updatei' j asi')
 
+  
 #reduce list.swap [3, 1, 4, 1] 0 2   -- expected: error.good [4, 1, 3, 1]
 #reduce list.swap [3, 1, 4, 1] 0 7   -- expected: error.good [3, 1, 4, 1]
 

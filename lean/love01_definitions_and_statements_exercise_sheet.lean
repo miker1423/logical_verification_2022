@@ -22,7 +22,7 @@ be negative are represented by 0. For example:
     `sub 2 7 = 0` -/
 
 def sub : ℕ → ℕ → ℕ
-| nat.zero n := 0
+| nat.zero _ := 0
 | m nat.zero := m
 | (nat.succ m) (nat.succ n) := (sub m n)
 
@@ -130,23 +130,38 @@ def K : α → β → α :=
 λa b, a
 
 def C : (α → β → γ) → β → α → γ :=
-sorry
+λa, λb, λc, a c b
 
 def proj_1st : α → α → α :=
-sorry
+λ_, λa1, a1
 
 /-! Please give a different answer than for `proj_1st`. -/
 
 def proj_2nd : α → α → α :=
-sorry
+λa, λb, a 
 
 def some_nonsense : (α → β → γ) → α → (α → γ) → β → γ :=
-sorry
+λa b _ c, a b c
 
 /-! 3.2. Show the typing derivation for your definition of `C` above, on paper
 or using ASCII or Unicode art. You might find the characters `–` (to draw
 horizontal bars) and `⊢` useful. -/
 
--- write your solution in a comment here or on paper
+/-
+--------------------------------Var
+D ⊢ a : α → β → γ         D ⊢ a: α
+------------App           ----------------Var
+D ⊢ a b : β → γ           D ⊢ c: β
+-------------------------------------------App 
+D ⊢ a b c : γ
+-------------------------------------------Lam
+a : (α → β → γ), b: α ⊢ (c: β, a b c) : β → γ
+----------------------------------------------------Lam
+a : (α → β → γ)   ⊢ (λ(b: α) (c: β), a b c) : α → β → γ
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– App
+⊢ (λ(a: α → β → γ) (b: α) (c: β), a b c) : (α → β → γ) → α → β → γ
+
+
+-/
 
 end LoVe

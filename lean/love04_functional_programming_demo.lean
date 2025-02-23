@@ -308,7 +308,7 @@ begin
 end
 
 /-! If `r` fails to match `l`, no subgoals emerge; the proof is complete. -/
-
+/- cases as elimination of equality on hypostesis -/
 lemma distinctness_example {α : Type} (y : α) (ys : list α)
     (h : [] = y :: ys) :
   false :=

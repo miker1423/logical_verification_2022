@@ -45,7 +45,17 @@ semantics: -/
 inductive big_step : stmt × state → state → Prop
 | skip {s} :
   big_step (stmt.skip, s) s
--- enter the missing cases here
+| assign {x a s} :
+  big_step (stmt.assign x a, s) (s{x ↦ a s})
+| seq {S T s t u} (hS: big_step (S, s) t) (hT: big_step (T, t) u) :
+  big_step (S ;; T, s) u
+| unless_false {b: state → Prop} (S s t) (hcond : ¬ b s) (hbody : big_step (S, s) t):
+  big_step (stmt.unless b S, s) t
+| unless_true {b: state → Prop} (S s t) (hcond : b s) (hbody: big_step (S, s) t):
+  big_step (stmt.unless b S, s) s
+| repeat {S s t n} (hbody: big_step (S, s) t) :
+  big_step ( S ;; (stmt.repeat (n-1) S), s) t
+
 
 infix ` ⟹ ` : 110 := big_step
 
@@ -55,7 +65,16 @@ semantics: -/
 inductive small_step : stmt × state → stmt × state → Prop
 | assign {x a s} :
   small_step (stmt.assign x a, s) (stmt.skip, s{x ↦ a s})
--- enter the missing cases here
+| seq_step {S S' T s s'} (hS: small_step (S, s) (S', s')):
+  small_step (S ;; T, s) (S' ;; T, s')
+| seq_skip {T s} :
+  small_step (stmt.skip ;; T, s) (T, s)
+| unless_false {b : state → Prop} {S T t s} (hcond: ¬ b s):
+  small_step (stmt.unless b S, s) (T, t)
+| unless_true {b : state → Prop} {s} (hcond: b s) :
+  small_step (stmt.skip, s) (stmt.skip, s)
+| repeat {S s T t n} (hbody: small_step (S, s) (T, t)) :
+  small_step (S, s) ((stmt.repeat (n-1) S), t)
 
 infixr ` ⇒ ` := small_step
 infixr ` ⇒* ` : 100 := star small_step
@@ -73,7 +92,13 @@ decreases with each small-step transition. -/
 
 def mess : stmt → ℕ
 | stmt.skip         := 0
--- enter the missing cases here
+| (stmt.assign _ _) := 1
+| (stmt.seq x y)    := mess x + mess y
+| (stmt.repeat n st) := (mess st) * n
+| (stmt.unless _ st) := mess st /- This is wrong, the condition changes if 
+                                   the mess should be evaluated or not but I don't 
+                                   how to do it :/.
+                                -/
 
 /-! 1.4 (1 point). Consider the following program `S₀`: -/
 
@@ -123,7 +148,23 @@ of `unless`. -/
 
 lemma big_step_ite_iff {b S s t} :
   (stmt.unless b S, s) ⟹ t ↔ (b s ∧ s = t) ∨ (¬ b s ∧ (S, s) ⟹ t) :=
-sorry
+begin
+  apply iff.intro,
+  {
+    intro h,
+    cases' h, 
+    { apply or.intro_right, 
+      apply and.intro hcond h, },
+    { cc, }
+  },
+  {
+    intro h,
+    cases' h,
+    cases' h,
+    { sorry },
+    { sorry }
+  }
+end
 
 /-! 2.2 (2 points). Prove the following inversion rule for the big-step
 semantics of `repeat`. -/
@@ -132,6 +173,26 @@ lemma big_step_repeat_iff {n S s u} :
   (stmt.repeat n S, s) ⟹ u ↔
   (n = 0 ∧ u = s)
   ∨ (∃m t, n = m + 1 ∧ (S, s) ⟹ t ∧ (stmt.repeat m S, t) ⟹ u) :=
-sorry
+begin
+  apply iff.intro,
+  { 
+    intro ru,
+    cases' ru,
+  },
+  { 
+    intro ru,
+    cases' ru,
+    { cases' h,
+      rw [left, right],
+      sorry
+    },
+    { cases' h,
+      cases' h,
+      induction' h,
+      rw [left],
+      sorry
+    }
+  }
+end 
 
 end LoVe

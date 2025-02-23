@@ -18,14 +18,20 @@ namespace LoVe
 should apply its argument `f` to all values of type `α` stored in the tree and
 otherwise preserve the tree's structure. -/
 
-def map_btree {α β : Type} (f : α → β) : btree α → btree β :=
-sorry
+def map_btree {α β : Type} (f : α → β) : btree α → btree β
+| btree.empty                := btree.empty
+| (btree.node a left right ) := btree.node (f a) (map_btree left) (map_btree right)
 
 /-! 1.2 (1 point). Prove the following lemma about your `map_btree` function. -/
 
 lemma map_btree_iden {α : Type} :
   ∀t : btree α, map_btree (λa, a) t = t :=
-sorry
+begin
+  intro bta,
+  induction' bta,
+  { refl },
+  { simp [map_btree, ih_bta, ih_bta_1] }
+end
 
 
 /-! ## Question 2 (4 points): Tail-Recursive Factorials
@@ -33,6 +39,8 @@ sorry
 Recall the definition of the factorial functions: -/
 
 #check fact
+
+/-MPG: I tried 😥. I'll review induction. -/
 
 /-! 2.1 (2 points). Experienced functional programmers tend to avoid definitions
 such as the above, because they lead to a deep call stack. Tail recursion can be
@@ -50,9 +58,21 @@ Hint: You will need to prove a generalized version of the statement as a
 separate lemma or `have`, because the desired property fixes `a` to 1, which
 yields a too weak induction hypothesis. -/
 
+lemma accufact_eq_fact (m n : ℕ) :
+  accufact m n = fact n :=
+begin
+  induction' n,
+  { sorry },
+  { sorry },
+end
+
 lemma accufact_1_eq_fact (n : ℕ) :
   accufact 1 n = fact n :=
-sorry
+begin
+  induction' n,
+  { sorry },
+  { sorry}
+end
 
 /-! 2.2 (2 points). Prove the same property as above again, this time as a
 "paper" proof. Follow the guidelines given in question 1.4 of the exercise. -/
@@ -78,12 +98,24 @@ multiplication. -/
 
 lemma sum_upto_eq :
   ∀m : ℕ, 2 * sum_upto (λi, i) m = m * (m + 1) :=
-sorry
+begin
+  intro m,
+  induction' m,
+  { refl },
+  { simp [mul_add, two_mul, ih],
+
+    sorry}
+end
 
 /-! 3.2 (1 point). Prove the following property of `sum_upto`. -/
 
 lemma sum_upto_mul (f g : ℕ → ℕ) :
   ∀n : ℕ, sum_upto (λi, f i + g i) n = sum_upto f n + sum_upto g n :=
-sorry
+begin
+  intro n,
+  induction' n,
+  { refl },
+  { sorry }
+end
 
 end LoVe

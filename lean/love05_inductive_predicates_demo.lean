@@ -223,6 +223,13 @@ begin
     simp [ih] }
 end
 
+lemma not_even_one :
+  ¬ even 1 :=
+begin
+  intro h,
+  induction' h,
+end
+
 lemma not_even_two_mul_add_one (n : ℕ) :
   ¬ even (2 * n + 1) :=
 begin

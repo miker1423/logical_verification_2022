@@ -312,7 +312,7 @@ lemma add_zero (n : ℕ) :
 begin
   induction' n,
   { refl },
-  { simp [add, ih] }
+  { simp [add, ih] },
 end
 
 /-! We use `induction'`, a variant of Lean's built-in `induction` tactic. The

@@ -24,13 +24,16 @@ inductive term : Type
 /-! 1.1 (1 point). Define an inductive predicate `is_app` that returns `true` if
 its argument is of the form `term.app …` and that returns false otherwise. -/
 
--- enter your definition here
+def is_app : term → bool
+| (term.app _ _) := tt
+| _              := ff
 
 /-! 1.2 (2 points). Define an inductive predicate `is_abs_free` that is true if
 and only if its argument is a λ-term that contains no λ-expressions. -/
 
--- enter your definition here
-
+def is_abs_free : term → bool
+| (term.lam "" _) := tt
+| _               := ff
 
 /-! ## Question 2 (6 points): Even and Odd
 
@@ -45,18 +48,25 @@ Lean definition below. The definition should distinguish two cases, like `even`,
 and should not rely on `even`. -/
 
 inductive odd : ℕ → Prop
--- supply the missing cases here
+| one              : odd 1
+| add_two { n : ℕ} : odd n -> odd (n + 2)
 
 /-! 2.2 (1 point). Give proof terms for the following propositions, based on
 your answer to question 2.1. -/
 
 lemma odd_3 :
   odd 3 :=
-sorry
+begin
+  apply odd.add_two,
+  apply odd.one,
+end
 
 lemma odd_5 :
   odd 5 :=
-sorry
+begin
+  apply odd.add_two,
+  apply odd_3,
+end
 
 /-! 2.3 (2 points). Prove the following lemma by rule induction, as a "paper"
 proof. This is a good exercise to develop a deeper understanding of how rule
@@ -81,13 +91,26 @@ need not be justified if you think they are obvious (to humans), but you should
 say which key lemmas they depend on. You should be explicit whenever you use a
 function definition or an introduction rule for an inductive predicate. -/
 
--- enter your paper proof here
+/-  PAPER PROOF
+                ✓                                                  ✓
+    ──────────────────────────── Apply odd.one     ───────────────────────────────── Apply odd.add_two
+    heven: even 0 ⊢ odd (0 + 1)                    heven: even (n + 1) ⊢ odd (n + 2)
+    ───────────────────────────────────────────────────────────────────────────────── Induction
+                        heven : even n ⊢ odd (n + 1)
+-/
 
 /-! 2.4 (1 point). Prove the same lemma again, but this time in Lean: -/
 
 lemma even_odd {n : ℕ} (heven : even n) :
   odd (n + 1) :=
-sorry
+begin
+  induction' heven,
+  { apply odd.one, },
+  {
+    apply odd.add_two,
+    apply ih,
+  }
+end
 
 /-! 2.5 (1 point). Prove the following lemma in Lean.
 
@@ -95,6 +118,13 @@ Hint: Recall that `¬ a` is defined as `a → false`. -/
 
 lemma even_not_odd {n : ℕ} (heven : even n) :
   ¬ odd n :=
-sorry
+begin
+  intro hood,
+  induction' hood,
+  { induction' heven, },
+  { cases' heven,
+    apply ih heven 
+  }
+end
 
 end LoVe
